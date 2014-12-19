@@ -129,23 +129,41 @@ Next use Berkshelf to grab this cookbook form the chef supermarket
 
 `$ berks install`
 
-Berkshelf has now downloaded a copy of the rbenv cookbook to your host machine.
+Berkshelf has now downloaded a copy of the rbenv cookbook to your host machine from the chef supermarket. Take a moment to look at the rbenv cookbook documentation https://supermarket.chef.io/cookbooks/rbenv/versions/1.4.1
 
-Now we can use the rbenv_ruby resource to install ruby globally on the vagrant machine.
+Now we can use the rbenv_ruby resource to install ruby globally on the vagrant machine. First let's create a defualt.rb file in the recipes directory
+
+`touch recipes/default.rb`
+
+Now add the following lines to this file
 
 ```
-rbenv_ruby 2.1.1 do
+include_recipe "rbenv::ruby_build"
+```
+
+Now all of the resource types defined in the rbenv cookbook are avail to us. Lets use the rbenv_ruby resource. Add the following line to your default.rb
+
+rbenv_ruby '2.1.1' do
   global true
 end
 ```
+Now we must add our cookbook to the vagrant runlist
+```
+    run_list:
+      - wdiy
+```
+Now lets recreate the vagrant
+`$ kitchen setup`
+This time we are using setup so that the cookbook will be applied.
 
-Run `$ kitchen setup default-centos` to bring up vagrant and apply the recipe
-Run `$ kitchen login default cenotos` to ssh into the box.
-On the vagrant machine run `ruby --version`
-The command should print 2.1.1 to the console.
-`$ exit`
 
-exercise: Extract the ruby version into an attribute  
+Run `$ kitchen login default cenotos` to ssh into the box.  
+On the vagrant machine run `ruby --version`  
+The command should print 2.1.1 to the console.  
+`$ exit`  
+
+exercise: Extract the ruby version into an attribute
+http://docs.chef.io/attributes.html  
 
 exercise: using the rbenv cookbook documentation, install bundler  
 
