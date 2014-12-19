@@ -1,27 +1,22 @@
 chef_tutorial
 =============
 
-Get the app
------------
-clone minion app
-`$ git clone https://github.com/nningego/tw_ac_vagrant_workshop`
-
 
 Setting up local environment
 ----------------------------
-install Sublime?  
+install Sublime from http://www.sublimetext.com/2 
 install vagrant from https://www.vagrantup.com/downloads  
-
-install virtualbox from https://www.virtualbox.  org/wiki/Downloads  
+install virtualbox from https://www.virtualbox.org/wiki/Downloads  
+install chef-dk from https://downloads.chef.io/chef-dk/mac/#/
 
 install ruby with rbenv  
 `$ brew install rbenv`  
 `$ brew install ruby-build`  
 `$ rbenv install 2.1.1`  
-`$ rbenv local 2.1.1`  
-`$ ruby --version \\ 2.1.1`  
-
-install bundler
+`$ rbenv local 2.1.1` 
+`$ rbenv init`
+Follow the instructions returned by this command 
+`$ ruby --version //2.1.1`
 
 `gem install bundler`
 
