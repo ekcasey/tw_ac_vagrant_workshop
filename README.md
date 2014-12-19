@@ -23,11 +23,11 @@ Follow the instructions returned by this command
 
 Cookbook Boilerplate
 --------------------
-metadata.rb
+ review the metadata.rb
 
 ```
-version '0.0.1'
 name    'wdiy'
+version '0.0.1'
 ```
 
 cookbook directory structure
@@ -38,17 +38,9 @@ cookbook
 /templates
 
 
-Setting Up Test Kitchen
+Setting Up Berkshelf
 -----------------------
-Gemfile
-```
-source 'https://rubygems.org'
 
-gem 'berkshelf'  
-gem 'test-kitchen'  
-gem 'kitchen-vagrant'
-```
-`$ bundle install`
 
 Berksfile
 
@@ -61,22 +53,60 @@ metadata
 `$ berks install`
 
 
-`$ kitchen init`
+Setting Up Test Kitchen
+-----------------------
+Lets download the base box...
 
-.kitchen.yml
+`$ vagrant box add centos65-x86_64-20140116 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box  `
 
-shared folders  
+then run
+`$ kitchen create`  
+
+this should create your virtual machine  
+`$ kitchen login`  
+
+now you are logged into the viratual machine, take a moment to look around  
+maybe try the following commands 
+`whoami`  
+`hostname`  
+`ip`  
+
+now lets return to the host machine  
+`$ exit`  
+
+and destroy the virtual machine  
+`$ kitchen destroy` 
+
+
+Hosting Minions on The Virtual Box
+----------------------------------
+How will we get the app code onto the virtual machin. Lets share a directory with the virtual machine. Add the following line to your drvier configuration.
 ```
   synced_folders:
-    - ["vagrant", "/vagrant"]
+    - ["../app", "/minions"]
 ```  
+
 Test whether this worked  
-`$ kitchen setup default-centos`  
+`$ kitchen create wdiy-centos`  
 `$ kitchen login`    
 `$ cd /`  
-`$ ls`  
+`$ ls`
 
-forwarded ports  
+You should see the minions directory on the virtual machine  
+
+now 
+`$ cd minions`  
+`$ ls`
+
+The contents of the minions directory should be the same as the app directory on the host machine. These directories will sync. Lets demonstrate that. Open a second terminal tab and navigate to the tw_ac_vagrant_workshop directory. Then run...
+
+`$ echo 'hello' > app/hello.txt`
+
+Now return to your vagrant tab and 'ls' again. You should see hello.txt in the minion directory. Now lets clean up 
+`$ rm hello.txt`
+
+Now lets set up forwarded ports. Add the following line to your .kitchen.yml. Will will validate that this works later.
+
 ```
   network:
     - ["forwarded_port", {guest: 4567, host: 4567}]
@@ -85,7 +115,11 @@ forwarded ports
 Your First Cookbook
 -------------------
 
-Install Ruby With Chef  
+
+Our goal is to get the app running on the virtual machine. Since this is a ruby app we must first install ruby on the guest box.
+
+Install Ruby With Chef
+----------------------  
 
 We are going to use the rbenv cookbook to install ruby. First we need ot add the rbenv cookbook as a dependency in our metadata file 
 
@@ -94,6 +128,8 @@ We are going to use the rbenv cookbook to install ruby. First we need ot add the
 Next use Berkshelf to grab this cookbook form the chef supermarket
 
 `$ berks install`
+
+Berkshelf has now downloaded a copy of the rbenv cookbook to your host machine.
 
 Now we can use the rbenv_ruby resource to install ruby globally on the vagrant machine.
 
