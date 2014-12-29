@@ -39,6 +39,22 @@ This repo contains two directories. The 'app' directory includes a ruby app call
 Setting up the Local Environment
 ----------------------------
 
+### Cookbook Boilerplate
+
+review the metadata.rb
+
+```
+name    'wdiy'
+version '0.0.1'
+```
+
+cookbook directory structure  
+
+cookbook  
+/attributes  
+/recipes  
+/templates 
+
 ### Setting Up Berkshelf  
 
 Berkshelf is a dependency manager for Chef. The cookbook we write will depend on cookbooks written by the chef community. You wil notice that an empty Berksfile has been created for you. Berkshelf uses the Berksfile to determine what dependencies to fetch and where to fetch these dependencies from. Add the following lines to your Berksfile.  
@@ -96,7 +112,7 @@ Here we have defined one suite named wdiy.
 
 The first important test-kitchen command you should know is `kitchen list`. This prints out the instances that kitchen knows about. When you run `kitchen list` it should list a single instances named 'wdiy-centos-64' that is currently '<Not Created>'
 
-The next important command is `kitchen list`. This will create that instance but will not yet apply the cookbook. Let's try running it now...
+The next important command is `kitchen create`. This will create that instance but will not yet apply the cookbook. Let's try running it now...
  
 `$ kitchen create`  
 
@@ -118,29 +134,15 @@ now lets return to the host machine
 `$ exit`  
 
 If we run `kitchen list` now, we should see that the status of our instance is Created.
+ 
 
+Your First Cookbook
+-------------------
 
-Cookbook Boilerplate
---------------------
-review the metadata.rb
+**Main Objective**: Write a Chef cookbook that will provision an application server for the Minions app.
 
-```
-name    'wdiy'
-version '0.0.1'
-```
-
-cookbook directory structure
-
-cookbook
-/attributes
-/recipes
-/templates
-
-
-
-Hosting Minions on The Virtual Box
-----------------------------------
-How will we get the app code onto the virtual machin. Lets share a directory with the virtual machine. Add the following line to your drvier configuration.
+### Sharing a Folder
+How will we get the app code onto the virtual machine? For now, lets share a directory from our host machine with the guest VM. Add the following line to your drvier configuration in .kitchen.yml.
 ```
   synced_folders:
     - ["../app", "/minions"]
@@ -150,46 +152,26 @@ Test whether this worked
 `$ kitchen create wdiy-centos`  
 `$ kitchen login`    
 `$ cd /`  
-`$ ls`
+`$ ls`  
 
 You should see the minions directory on the virtual machine  
 
-now 
-`$ cd minions`  
-`$ ls`
-
-The contents of the minions directory should be the same as the app directory on the host machine. These directories will sync. Lets demonstrate that. Open a second terminal tab and navigate to the tw_ac_vagrant_workshop directory. Then run...
-
-`$ echo 'hello' > app/hello.txt`
-
-Now return to your vagrant tab and 'ls' again. You should see hello.txt in the minion directory. Now lets clean up 
-`$ rm hello.txt`
-
-Now lets set up forwarded ports. Add the following line to your .kitchen.yml. Will will validate that this works later.
-
 ```
-  network:
-    - ["forwarded_port", {guest: 4567, host: 4567}]
+$ cd minions   
+$ ls
 ```
 
-Your First Cookbook
--------------------
+### Install Ruby With Chef
 
+Since this is a ruby app we must install ruby on the guest box in order to run the Minions app. 
 
-Our goal is to get the app running on the virtual machine. Since this is a ruby app we must first install ruby on the guest box.
+We are going to use the rbenv cookbook to install ruby. First we need to add the rbenv cookbook as a dependency in our metadata file. Add the following line to metadata.rb
 
-Install Ruby With Chef
-----------------------  
+```
+depends 'rbenv', '1.7.1'
+```
 
-We are going to use the rbenv cookbook to install ruby. First we need ot add the rbenv cookbook as a dependency in our metadata file 
-
-`depends 'rbenv', '1.7.1'`
-
-Next use Berkshelf to grab this cookbook form the chef supermarket
-
-`$ berks install`
-
-Berkshelf has now downloaded a copy of the rbenv cookbook to your host machine from the chef supermarket. Take a moment to look at the rbenv cookbook documentation https://supermarket.chef.io/cookbooks/rbenv/versions/1.4.1
+Take a moment to look at the rbenv cookbook documentation https://supermarket.chef.io/cookbooks/rbenv/versions/1.4.1
 
 Now we can use the rbenv_ruby resource to install ruby globally on the vagrant machine. First let's create a defualt.rb file in the recipes directory
 
@@ -198,30 +180,41 @@ Now we can use the rbenv_ruby resource to install ruby globally on the vagrant m
 Now add the following lines to this file
 
 ```
+include_recipe "rbenv::default"
 include_recipe "rbenv::ruby_build"
 ```
 
-Now all of the resource types defined in the rbenv cookbook are avail to us. Lets use the rbenv_ruby resource. Add the following line to your default.rb
+Now all of the resource types defined in the rbenv cookbook are available to us. Lets use the rbenv_ruby resource. Add the following line to your default.rb
 
 ```
 rbenv_ruby '2.1.1' do
   global true
 end
 ```
-Now we must add our cookbook to the vagrant runlist
+
+Now we must add our cookbook to the vagrant runlist. Add the following attribute to the wdiy suite in .kitchen.yml
 ```
     run_list:
       - wdiy
 ```
-Now lets recreate the vagrant
-`$ kitchen setup`
-This time we are using setup so that the cookbook will be applied.
+
+Now lets apply the coobook to the instance
+```
+$ kitchen converge
+```
 
 
-Run `$ kitchen login default cenotos` to ssh into the box.  
+Run `$ kitchen login default centos` to ssh into the box.  
 On the vagrant machine run `ruby --version`  
 The command should print 2.1.1 to the console.  
-`$ exit`  
+`$ exit`
+
+Now lets set up forwarded ports. Add the following line to your .kitchen.yml. We will validate that this works later.
+
+```
+  network:
+    - ["forwarded_port", {guest: 4567, host: 4567}]
+```  
 
 exercise: Extract the ruby version into an attribute
 http://docs.chef.io/attributes.html  
@@ -231,7 +224,6 @@ exercise: using the rbenv cookbook documentation, install bundler
 Start application. You should see a database error.
 
 Install Mysql With Chef
-
 
 Create Minion Database  
 
