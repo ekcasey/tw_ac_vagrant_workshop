@@ -62,7 +62,7 @@ To borrow directly from the test-kitchen project 'Test Kitchen is an integration
 ```
 driver:
   name: vagrant
-``
+```
 We have specified that we will use vagrant (on top of virtualbox) as a driver. This means that the instances that kitchen creates will be local vagrant instances.  
 
 ```
