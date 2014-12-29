@@ -90,11 +90,9 @@ Finally lets take a look at the suites section of the .kitchen.yml
 ```
 suites:
   - name: wdiy
-    run_list:
-      - wdiy
 ```
 
-Here we have defined one suite named wdiy which runs only one cookbook, the wdiy cookbook.
+Here we have defined one suite named wdiy.
 
 The first important test-kitchen command you should know is `kitchen list`. This prints out the instances that kitchen knows about. When you run `kitchen list` it should list a single instances named 'wdiy-centos-64' that is currently '<Not Created>'
 
@@ -205,6 +203,7 @@ include_recipe "rbenv::ruby_build"
 
 Now all of the resource types defined in the rbenv cookbook are avail to us. Lets use the rbenv_ruby resource. Add the following line to your default.rb
 
+```
 rbenv_ruby '2.1.1' do
   global true
 end
