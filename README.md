@@ -3,23 +3,29 @@ Chef Tutorial
 
 
 Prerequisites
-----------------------------
-install Sublime from http://www.sublimetext.com/2 (optional)
+----------------------------  
+
+install Sublime from http://www.sublimetext.com/2 (optional)  
 install vagrant from https://www.vagrantup.com/downloads  
 install virtualbox from https://www.virtualbox.org/wiki/Downloads  
-install chef-dk from https://downloads.chef.io/chef-dk/mac/#/
+install chef-dk from https://downloads.chef.io/chef-dk/mac/#/  
 
 Let's verify that these instalations were successful. The following command should return 1.7.1 or greater
-`vagrant --version `
+```
+vagrant --version 
+````
 
 The following command should open up the virtualbox manager application 
-`virtualbox`  
+```
+virtualbox
+````  
 
 The chef-dk includes chef, test-kitchen, and berkshelf. To verify that all of these were installed properly run
-`chef --version //>=3.2.1`  
-`kitchen --version //>=1.2.1`  
-`berks --version //>=3.2.1`  
-
+```
+chef --version //>=3.2.1  
+kitchen --version //>=1.2.1  
+berks --version //>=3.2.1 
+```
 
 Cloning the repo
 ----------------
@@ -27,26 +33,11 @@ Cloning the repo
 First clone the workshop repo    
 `$ git clone git@github.com:ekcasey/tw_ac_vagrant_workshop.git`    
 
-This repo contains two directories. The 'app' directory includes a ruby app called Minions. Our goal is to use Chef to provision a virtual machine machine so that it can run the Minions app. The cookbook directory will hold our chef code.
+This repo contains two directories. The 'app' directory includes a ruby app called Minions. Our goal is to use Chef to provision a virtual machine machine so that it can run the Minions app. Take a minute to inspect the app directory. The cookbook directory will hold our chef code.
 
 
 Setting up the Local Environment
 ----------------------------
-
-### Install Ruby
-
-Chef is a DSL built on top of ruby. We will install ruby with rbenv.     
-`$ brew install rbenv`  
-`$ brew install ruby-build`  
-`$ rbenv install 2.1.1`  
-`$ rbenv local 2.1.1`  
-
-Now we want rbenv to hook into the shell so that the correct version of ruby is used automatically. To accomplish this run the following command and follow the instructions it returns.  
-`$ rbenv init`  
-
-Now, to verify that the above steps worked ask ruby for its version and verify that it returns 2.1.1.  
-`$ ruby --version //2.1.1`
-
 
 ### Setting Up Berkshelf  
 
@@ -60,32 +51,75 @@ source 'https://supermarket.getchef.com'
 metadta
 ```
 
-The first line tells Berkshelf to fetch cookbooks from the chef supermarket. The second line tells Berkshelf to inspect the cookbook's metadata file to determine dependencies (don't worry we will try this out later). To make sure your Berksfile is set up correctly, make sure the following command executes without errors (nothing will be downloaded because we haven't specified any dependencies yet).
+The first line tells Berkshelf to fetch cookbooks from the chef supermarket. The second line tells Berkshelf to inspect the cookbook's metadata file to determine dependencies (don't worry we will try this out later). To make sure your Berksfile is set up correctly, make sure the following command executes without errors (nothing will be downloaded because we haven't specified any dependencies yet).  
 
-`$ berks install`
+`$ berks install`  
 
 ###  Setting Up Test Kitchen
 
-Lets download the base box...
+To borrow directly from the test-kitchen project 'Test Kitchen is an integration tool for developing and testing infrastructure code and software on isolated target platforms'. What this means is that test-kitchen is the glue that holds our toolchain together. The kitchen command line tool allows you to create virtual machines using vagrant or another driver, upload your cookbook and its dependencies to that machine using berkshelf, apply your cookbook using chef, and then verify the state of the machine using minitest or another testing framework (we won't actaully try testing today). We have already configured test-kitchen for this project, But lets take a moment to look at the key pieces of the .kitchen.yml file...  
+  
+```
+driver:
+  name: vagrant
+``
+We have specified that we will use vagrant (on top of virtualbox) as a driver. This means that the instances that kitchen creates will be local vagrant instances.  
 
-`$ vagrant box add centos65-x86_64-20140116 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box  `
+```
+provisioner:
+  name: chef_solo
+```
 
-then run
+We have specified that we will be using chef_solo as a provisioner (don't worry too much about this for now)
+
+```
+platforms:
+  - name: centos-6.4
+    driver:
+      box: centos65-x86_64-20140116
+```
+The above lines specifies the type of instance kitchen should create. We will be testing our cookbook on  centos-6.4 image. The last 2 lines tell test-kitchen which base image to use when creating instances. We need to download this image so that it is available to test-kitchen   
+
+Lets download the base box...  
+
+```
+$ vagrant box add centos65-x86_64-20140116 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box
+```
+
+Finally lets take a look at the suites section of the .kitchen.yml 
+```
+suites:
+  - name: wdiy
+    run_list:
+      - wdiy
+```
+
+Here we have defined one suite named wdiy which runs only one cookbook, the wdiy cookbook.
+
+The first important test-kitchen command you should know is `kitchen list`. This prints out the instances that kitchen knows about. When you run `kitchen list` it should list a single instances named 'wdiy-centos-64' that is currently '<Not Created>'
+
+The next important command is `kitchen list`. This will create that instance but will not yet apply the cookbook. Let's try running it now...
+ 
 `$ kitchen create`  
 
-this should create your virtual machine  
-`$ kitchen login`  
+This command should execute succesfully and create your virtual machine. To verify that the virtual machine was successfully create open virtual manager and look for an instance with the name  'wdiy-centos-64'.
 
-now you are logged into the viratual machine, take a moment to look around  
-maybe try the following commands 
-`whoami`  
-`hostname`  
-`ip`  
+Next, we want to ssh into our newly created virtual machine. To do this run the following command
+```
+$ kitchen login
+```  
+
+Now you are logged into the virtual machine! Your command prompt should have changed to indicate this. From now on we will call this machine the VM or th guest. Take a moment to look around. Maybe try the following commands...  
+```
+$ whoami  
+$ hostname    
+$ ip addr  
+```  
 
 now lets return to the host machine  
 `$ exit`  
 
-and destroy the virtual
+If we run `kitchen list` now, we should see that the status of our instance is Created.
 
 
 Cookbook Boilerplate
