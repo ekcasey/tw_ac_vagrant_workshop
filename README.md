@@ -1,60 +1,71 @@
-chef_tutorial
+Chef Tutorial
 =============
 
 
-Setting up local environment
+Prerequisites
 ----------------------------
-install Sublime from http://www.sublimetext.com/2 
+install Sublime from http://www.sublimetext.com/2 (optional)
 install vagrant from https://www.vagrantup.com/downloads  
 install virtualbox from https://www.virtualbox.org/wiki/Downloads  
 install chef-dk from https://downloads.chef.io/chef-dk/mac/#/
 
-install ruby with rbenv  
+Let's verify that these instalations were successful. The following command should return 1.7.1 or greater
+`vagrant --version `
+
+The following command should open up the virtualbox manager application 
+`virtualbox`  
+
+The chef-dk includes chef, test-kitchen, and berkshelf. To verify that all of these were installed properly run
+`chef --version //>=3.2.1`  
+`kitchen --version //>=1.2.1`  
+`berks --version //>=3.2.1`  
+
+
+Cloning the repo
+----------------
+
+First clone the workshop repo    
+`$ git clone git@github.com:ekcasey/tw_ac_vagrant_workshop.git`    
+
+This repo contains two directories. The 'app' directory includes a ruby app called Minions. Our goal is to use Chef to provision a virtual machine machine so that it can run the Minions app. The cookbook directory will hold our chef code.
+
+
+Setting up the Local Environment
+----------------------------
+
+### Install Ruby
+
+Chef is a DSL built on top of ruby. We will install ruby with rbenv.     
 `$ brew install rbenv`  
 `$ brew install ruby-build`  
 `$ rbenv install 2.1.1`  
-`$ rbenv local 2.1.1` 
-`$ rbenv init`
-Follow the instructions returned by this command 
+`$ rbenv local 2.1.1`  
+
+Now we want rbenv to hook into the shell so that the correct version of ruby is used automatically. To accomplish this run the following command and follow the instructions it returns.  
+`$ rbenv init`  
+
+Now, to verify that the above steps worked ask ruby for its version and verify that it returns 2.1.1.  
 `$ ruby --version //2.1.1`
 
-`gem install bundler`
 
+### Setting Up Berkshelf  
 
-Cookbook Boilerplate
---------------------
- review the metadata.rb
-
-```
-name    'wdiy'
-version '0.0.1'
-```
-
-cookbook directory structure
-
-cookbook
-/attributes
-/recipes
-/templates
-
-
-Setting Up Berkshelf
------------------------
-
+Berkshelf is a dependency manager for Chef. The cookbook we write will depend on cookbooks written by the chef community. You wil notice that an empty Berksfile has been created for you. Berkshelf uses the Berksfile to determine what dependencies to fetch and where to fetch these dependencies from. Add the following lines to your Berksfile.  
 
 Berksfile
 
 ```
 source 'https://supermarket.getchef.com'
 
-metadata
+metadta
 ```
+
+The first line tells Berkshelf to fetch cookbooks from the chef supermarket. The second line tells Berkshelf to inspect the cookbook's metadata file to determine dependencies (don't worry we will try this out later). To make sure your Berksfile is set up correctly, make sure the following command executes without errors (nothing will be downloaded because we haven't specified any dependencies yet).
 
 `$ berks install`
 
+###  Setting Up Test Kitchen
 
-Setting Up Test Kitchen
------------------------
 Lets download the base box...
 
 `$ vagrant box add centos65-x86_64-20140116 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box  `
@@ -74,8 +85,25 @@ maybe try the following commands
 now lets return to the host machine  
 `$ exit`  
 
-and destroy the virtual machine  
-`$ kitchen destroy` 
+and destroy the virtual
+
+
+Cookbook Boilerplate
+--------------------
+review the metadata.rb
+
+```
+name    'wdiy'
+version '0.0.1'
+```
+
+cookbook directory structure
+
+cookbook
+/attributes
+/recipes
+/templates
+
 
 
 Hosting Minions on The Virtual Box
