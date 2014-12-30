@@ -12,19 +12,19 @@ install chef-dk from https://downloads.chef.io/chef-dk/mac/#/
 
 Let's verify that these instalations were successful. The following command should return 1.7.1 or greater
 ```
-vagrant --version 
+$ vagrant --version 
 ````
 
 The following command should open up the virtualbox manager application 
 ```
-virtualbox
+$ virtualbox
 ````  
 
 The chef-dk includes chef, test-kitchen, and berkshelf. To verify that all of these were installed properly run
 ```
-chef --version //>=3.2.1  
-kitchen --version //>=1.2.1  
-berks --version //>=3.2.1 
+$ chef --version 
+$ kitchen --version 
+$ berks --version
 ```
 
 Cloning the repo
@@ -33,27 +33,20 @@ Cloning the repo
 First clone the workshop repo    
 `$ git clone git@github.com:ekcasey/tw_ac_vagrant_workshop.git`    
 
-This repo contains two directories. The 'app' directory includes a ruby app called Minions. Our goal is to use Chef to provision a virtual machine machine so that it can run the Minions app. Take a minute to inspect the app directory. The cookbook directory will hold our chef code.
+This repo contains two directories. The 'app' directory includes a ruby app called Minions. Our goal is to use Chef to provision a virtual machine machine so that it can run the Minions app. Take a minute to inspect the app directory.
 
-
-Setting up the Local Environment
-----------------------------
-
-### Cookbook Boilerplate
-
-review the metadata.rb
+The cookbook directory will hold our chef code. We have created the basic directory structure for you. Take a moment to look at the metadata.rb. The following lines describe the name and version of the cookbook.
 
 ```
 name    'wdiy'
 version '0.0.1'
 ```
 
-cookbook directory structure  
+Later we will be specifying our cookbook dependencies in this metadata file.
 
-cookbook  
-/attributes  
-/recipes  
-/templates 
+
+Setting up the Local Environment
+----------------------------
 
 ### Setting Up Berkshelf  
 
@@ -67,7 +60,7 @@ source 'https://supermarket.getchef.com'
 metadta
 ```
 
-The first line tells Berkshelf to fetch cookbooks from the chef supermarket. The second line tells Berkshelf to inspect the cookbook's metadata file to determine dependencies (don't worry we will try this out later). To make sure your Berksfile is set up correctly, make sure the following command executes without errors (nothing will be downloaded because we haven't specified any dependencies yet).  
+The first line tells Berkshelf to fetch cookbooks from the chef supermarket. The second line tells Berkshelf to inspect the cookbook's metadata file to determine dependencies (don't worry we will try this out later). To verify that your Berksfile is set up correctly, make sure the following command executes without errors (nothing will be downloaded because we haven't specified any dependencies yet).  
 
 `$ berks install`  
 
@@ -86,7 +79,7 @@ provisioner:
   name: chef_solo
 ```
 
-We have specified that we will be using chef_solo as a provisioner (don't worry too much about this for now)
+We have specified that we will be using chef_solo as a provisioner (this means that we will not be needing a chef server)
 
 ```
 platforms:
@@ -133,7 +126,7 @@ $ ip addr
 now lets return to the host machine  
 `$ exit`  
 
-If we run `kitchen list` now, we should see that the status of our instance is Created.
+If we run `kitchen list` now, we should see that the status of our instance is 'Created'.
  
 
 Your First Cookbook
@@ -148,8 +141,14 @@ How will we get the app code onto the virtual machine? For now, lets share a dir
     - ["../app", "/minions"]
 ```  
 
-Test whether this worked  
-`$ kitchen create wdiy-centos`  
+Since we have changed our VM configuration we must destroy the VM and recreate it.
+
+```
+$ kitchen destroy
+$ kitchen create
+```
+
+Now lets test whether the synced folder is working    
 `$ kitchen login`    
 `$ cd /`  
 `$ ls`  
@@ -184,7 +183,7 @@ include_recipe "rbenv::default"
 include_recipe "rbenv::ruby_build"
 ```
 
-Now all of the resource types defined in the rbenv cookbook are available to us. Lets use the rbenv_ruby resource. Add the following line to your default.rb
+Now all of the resource types defined in the rbenv cookbook are available to us. Lets use the rbenv_ruby resource. Add the following lines to your default.rb
 
 ```
 rbenv_ruby '2.1.1' do
@@ -198,34 +197,52 @@ Now we must add our cookbook to the vagrant runlist. Add the following attribute
       - wdiy
 ```
 
-Now lets apply the coobook to the instance
+Now lets apply the cookbook to the instance. 'kitchen converge' will apply your run_list to a created instance.
 ```
 $ kitchen converge
 ```
 
 
-Run `$ kitchen login default centos` to ssh into the box.  
-On the vagrant machine run `ruby --version`  
-The command should print 2.1.1 to the console.  
-`$ exit`
+Run `$ kitchen login` to ssh into the box.  
+On the vagrant machine run `ruby --version`. The command should print 2.1.1 to the console.  
 
-Now lets set up forwarded ports. Add the following line to your .kitchen.yml. We will validate that this works later.
+Now, that we have ruby installed lets try running the app.
+
+```
+cd /minions/lib
+ruby run_app.r
+```
+Oops! You should see the following error 'cannot load such file -- sinatra (LoadError)'. We need to install bundler on the VM so that we can install Minion's dependencies. Your turn!
+
+*Excercise 1: Install Bundler*  
+*Extend default.rb so that it installs the bundler gem on the guesst. Hint: look at the rbenv docs. When you are ready, coverge your instance. Now login, and try running `bundle install` in the minions directory. Were you successful? If not, keep trying!*
+
+When you have successfully installed Minion's dependencies try starting the app again. If it starts successfully you should see the following message 'Sinatra/1.4.5 has taken the stage on 4567 for development with backup from WEBrick'. Lets quickly verify this with curl. The following command should return 'Hello Minions!'
+```
+$ curl http://localhost:4567
+``` 
+
+Next, we would like to see 'Hello Minions!' displayed in a browser. This is a little trickier b/c our guest machine has no browser. We want to use the browser on our host machine. To do this we woudl like to forward port 4567 from the guest to the host machine. Therefore when we access localhost:4567 in our host browser it will display content from the guest at port 4567. 
+
+To set up the forwarded port, add the following line to your driver configuration in .kitchen.yml.
 
 ```
   network:
     - ["forwarded_port", {guest: 4567, host: 4567}]
 ```  
 
-exercise: Extract the ruby version into an attribute
-http://docs.chef.io/attributes.html  
+Now 
 
-exercise: using the rbenv cookbook documentation, install bundler  
+
 
 Start application. You should see a database error.
 
 Install Mysql With Chef
 
 Create Minion Database  
+
+*Excercise 2: Extract the ruby version into an attribute*  
+*Rembember what we learned about attributes? Extract the ruby version into an attribute so that it is configurable. Make sure to test your work.*  
 
 
 
