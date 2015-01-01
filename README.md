@@ -57,10 +57,10 @@ Berksfile
 ```
 source 'https://supermarket.getchef.com'
 
-metadta
+metadata
 ```
 
-The first line tells Berkshelf to fetch cookbooks from the chef supermarket. The second line tells Berkshelf to inspect the cookbook's metadata file to determine dependencies (don't worry we will try this out later). To verify that your Berksfile is set up correctly, make sure the following command executes without errors (nothing will be downloaded because we haven't specified any dependencies yet).  
+The first line tells Berkshelf to fetch cookbooks from the chef supermarket. The second line tells Berkshelf to inspect the cookbook's metadata file to determine dependencies (don't worry we will try this out later). To verify that your Berksfile is set up correctly, cd into the cookbook directory and make sure the following command executes without errors (nothing will be downloaded because we haven't specified any dependencies yet).  
 
 `$ berks install`  
 
@@ -72,7 +72,7 @@ To borrow directly from the test-kitchen project 'Test Kitchen is an integration
 driver:
   name: vagrant
 ```
-We have specified that we will use vagrant (on top of virtualbox) as a driver. This means that the instances that kitchen creates will be local vagrant instances.  
+We have specified that we will use vagrant (on top of virtualbox) as a driver. This means that kitchen will create instances using vagrant (other drivers allow you to create instances in the cloud using various cloud drivers).  
 
 ```
 provisioner:
@@ -89,10 +89,10 @@ platforms:
 ```
 The above lines specifies the type of instance kitchen should create. We will be testing our cookbook on  centos-6.4 image. The last 2 lines tell test-kitchen which base image to use when creating instances. We need to download this image so that it is available to test-kitchen   
 
-Lets download the base box...  
+Lets download the base box...  this will take about 3 min...
 
 ```
-$ vagrant box add centos65-x86_64-20140116 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box
+$ vagrant box add centos65-x86_64-20140116 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box --insecure
 ```
 
 Finally lets take a look at the suites section of the .kitchen.yml 
