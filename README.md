@@ -137,8 +137,8 @@ Your First Cookbook
 ### Sharing a Folder
 How will we get the app code onto the virtual machine? For now, lets share a directory from our host machine with the guest VM. Add the following line to your drvier configuration in .kitchen.yml.
 ```
-  synced_folders:
-    - ["../app", "/minions"]
+synced_folders:
+  - ["../app", "/minions"]
 ```  
 
 Since we have changed our VM configuration we must destroy the VM and recreate it.
@@ -158,6 +158,7 @@ You should see the minions directory on the virtual machine
 ```
 $ cd minions   
 $ ls
+$ exit
 ```
 
 ### Install Ruby With Chef
@@ -191,7 +192,7 @@ rbenv_ruby '2.1.1' do
 end
 ```
 
-Now we must add our cookbook to the vagrant runlist. Add the following attribute to the wdiy suite in .kitchen.yml
+Now we must add our cookbook to the vagrant runlist. Add the following to the wdiy suite in .kitchen.yml. If a cookbook is added to a runlist rather than a specific recipe the default recipe is run.
 ```
     run_list:
       - wdiy
@@ -210,19 +211,19 @@ Now, that we have ruby installed lets try running the app.
 
 ```
 cd /minions/lib
-ruby run_app.r
+ruby run_app.rb
 ```
-Oops! You should see the following error 'cannot load such file -- sinatra (LoadError)'. We need to install bundler on the VM so that we can install Minion's dependencies. Your turn!
+Oops! You should see the following error 'cannot load such file -- sinatra (LoadError)'. We need to install bundler on the VM so that we can install Minion's dependencies (which includes Sinatra). Your turn!
 
 *Excercise 1: Install Bundler*  
-*Extend default.rb so that it installs the bundler gem on the guesst. Hint: look at the rbenv docs. When you are ready, coverge your instance. Now login, and try running `bundle install` in the minions directory. Were you successful? If not, keep trying!*
+*Extend default.rb so that it installs the bundler gem on the guest. Hint: look at the rbenv docs. When you are ready, coverge your instance. Now login, and try running `bundle install` in the minions directory. Were you successful? If not, keep trying!*
 
-When you have successfully installed Minion's dependencies try starting the app again. If it starts successfully you should see the following message 'Sinatra/1.4.5 has taken the stage on 4567 for development with backup from WEBrick'. Lets quickly verify this with curl. The following command should return 'Hello Minions!'
+When you have successfully installed Minion's dependencies try starting the app again. If it starts successfully you should see the following message 'Sinatra/1.4.5 has taken the stage on 4567 for development with backup from WEBrick'. Lets quickly verify this with curl. Open a new terminal tab, run 'kitchen login' and execute the following command. It should return 'Hello Minions!'
 ```
 $ curl http://localhost:4567
 ``` 
 
-Next, we would like to see 'Hello Minions!' displayed in a browser. This is a little trickier b/c our guest machine has no browser. We want to use the browser on our host machine. To do this we woudl like to forward port 4567 from the guest to the host machine. Therefore when we access localhost:4567 in our host browser it will display content from the guest at port 4567. 
+Next, we would like to see 'Hello Minions!' displayed in a browser. This is a little trickier b/c our guest machine has no browser. We want to use the browser on our host machine. To do this we would like to forward port 4567 from the guest to the host machine. Therefore when we access localhost:4567 in our host browser it will display content from the guest at port 4567. 
 
 To set up the forwarded port, add the following line to your driver configuration in .kitchen.yml.
 
@@ -231,15 +232,36 @@ To set up the forwarded port, add the following line to your driver configuratio
     - ["forwarded_port", {guest: 4567, host: 4567}]
 ```  
 
-Now 
+Now, we must destroy and recreate the VM in order to apply this change. Run 'ktichen destroy' from the host machine. Now, this time instead of running 'kitchen create' lets use the 'kitchen setup' command which will create the VM apply the runlist with Chef.
+
+Now lets login to the guest machine again, bundle install, and start the minions application. Now, from the browser on your host machine, navigate to localhost:4567. You should see 'Hello Minions!' displayed in the browser.
+
+Next try to navigate to  localhost:4567/show/minions. Oh no! A database error. This makes sense because we haven't installed mysql yet! Time to improve our default.rb recipe.
+
+### Install Mysql With Chef
+
+We are going to use the database community cookbook (v 6.0.6) from the chef supermaket (https://supermarket.chef.io/cookbooks?utf8=✓&q=mysql). Lets go ahead and add this dependency in our metadata.rb file. We are going to use the server_mysql resource type. We would like to use the :create and :start actions. Most of the attribute defaults are fine for our puposes. However we would like to set the initial_root_password attribute to be 'thought' because this is the password the app uses when it tries to connect (you can see this in the DBClient class in dbclient.rb).
+```
+mysql_service 'default' do
+    :action => [:create, :start],
+    :initial_root_password => 'thought' 
+end
+
+```
 
 
+Now use the database_mysql resource to create a mysql database with the name 'miniondb'.
 
-Start application. You should see a database error.
+### Create Minion Database
 
-Install Mysql With Chef
+We are going to use the database community cookbook (v 2.3.1) from the chef supermaket (https://supermarket.chef.io/cookbooks/database/versions/1.2.0). Lets go ahead and add this dependency in our metadata.rb file.
 
-Create Minion Database  
+Next include the mysql recipe from the database in your default.rb recipe.
+```
+include_recipe "database::mysql"
+```
+
+Now use the database_mysql resource to create a mysql database with the name 'miniondb'.
 
 *Excercise 2: Extract the ruby version into an attribute*  
 *Rembember what we learned about attributes? Extract the ruby version into an attribute so that it is configurable. Make sure to test your work.*  

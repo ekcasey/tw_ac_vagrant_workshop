@@ -1,7 +1,0 @@
-DEPENDENCIES
-  wdiy
-    path: .
-    metadata: true
-
-GRAPH
-  wdiy (0.0.1)
