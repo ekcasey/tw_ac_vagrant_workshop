@@ -5,7 +5,7 @@ Chef Tutorial
 Prerequisites
 ----------------------------  
 
-install Sublime from http://www.sublimetext.com/2 (optional)  
+install Sublime from http://www.sublimetext.com/3 (optional)  
 install vagrant from https://www.vagrantup.com/downloads  
 install virtualbox from https://www.virtualbox.org/wiki/Downloads  
 install chef-dk from https://downloads.chef.io/chef-dk/mac/#/  
