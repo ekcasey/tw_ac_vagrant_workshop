@@ -109,7 +109,7 @@ The next important command is `kitchen create`. This will create that instance b
  
 `$ kitchen create`  
 
-This command should execute succesfully and create your virtual machine. To verify that the virtual machine was successfully create open virtual manager and look for an instance with the name  'wdiy-centos-64'.
+This command should execute succesfully and create your virtual machine. To verify that the virtual machine was successfully create open virtualbox  manager (you can do this by running ``virtualbox` from the command line) and look for an instance with the name  'wdiy-centos-64'.
 
 Next, we want to ssh into our newly created virtual machine. To do this run the following command
 ```
@@ -177,14 +177,14 @@ Now we can use the rbenv_ruby resource to install ruby globally on the vagrant m
 
 `touch recipes/default.rb`
 
-Now add the following lines to this file
+Now lets include the rbenv::default and rbnev::ruby_build recipes. The rbenv::default recipe installs rbenv. And the rbenv::ruby_build recipe install ruby-build (an rbenv plugin that allows rbenv to build rubies). 
 
 ```
 include_recipe "rbenv::default"
 include_recipe "rbenv::ruby_build"
 ```
 
-Now all of the resource types defined in the rbenv cookbook are available to us. Lets use the rbenv_ruby resource. Add the following lines to your default.rb
+Now that we have installed rbenv and ruby_build Lets use the rbenv_ruby LWRP to build ruby 2.1.1. We want to use the :create action for this LWRP which ahppens to bethe default, therefore we do not need to specify an action. We will set the global attribute to true so that this ruby is the default ruby for the system. Add the following lines to your default.rb
 
 ```
 rbenv_ruby '2.1.1' do
@@ -223,6 +223,9 @@ When you have successfully installed Minion's dependencies try starting the app 
 $ curl http://localhost:4567
 ``` 
 
+*Excercise 2: Extract the ruby version into an attribute*  
+*Rembember what we learned about attributes? Extract the ruby version into an attribute so that it is configurable. Make sure to test your work.*  
+
 Next, we would like to see 'Hello Minions!' displayed in a browser. This is a little trickier b/c our guest machine has no browser. We want to use the browser on our host machine. To do this we would like to forward port 4567 from the guest to the host machine. Therefore when we access localhost:4567 in our host browser it will display content from the guest at port 4567. 
 
 To set up the forwarded port, add the following line to your driver configuration in .kitchen.yml.
@@ -238,33 +241,39 @@ Now lets login to the guest machine again, bundle install, and start the minions
 
 Next try to navigate to  localhost:4567/show/minions. Oh no! A database error. This makes sense because we haven't installed mysql yet! Time to improve our default.rb recipe.
 
-### Install Mysql With Chef
+### Install Mysql
 
-We are going to use the database community cookbook (v 6.0.6) from the chef supermaket (https://supermarket.chef.io/cookbooks?utf8=✓&q=mysql). Lets go ahead and add this dependency in our metadata.rb file. We are going to use the server_mysql resource type. We would like to use the :create and :start actions. Most of the attribute defaults are fine for our puposes. However we would like to set the initial_root_password attribute to be 'thought' because this is the password the app uses when it tries to connect (you can see this in the DBClient class in dbclient.rb).
-```
-mysql_service 'default' do
-    :action => [:create, :start],
-    :initial_root_password => 'thought' 
-end
+We are going to use the database community cookbook (v 2.3.1) from the chef supermaket (https://supermarket.chef.io/cookbooks/database/versions/2.3.1). Lets go ahead and add this dependency in our metadata.rb file.
+
+First we must install the mysql server. The database cookbook depends on the mysql cookbook v5.0. You can see this by clicking on the dependencies tab in the database cookbook documentation. Therefore, we also have acces to the recipes from the mysql cookbook. First we must include the mysql::server recipe. Add the following lines to your default.rb recipe.
 
 ```
+include_recipe "mysql::server"
+```
 
+Now lets run `$ kitchen converge` to apply our recipe to the VM. When the converge is finished login to the VM so we can verify start the installation worked. Login to the guest machine and verify that mysql is running by executing '$ service mysqld status' returns running. now lets exit. The next thing we need would like to do is set the root password so that our app will be able to connect to mysql. We do this by setting the server_root_password attribute. By looking in the dbclient.rb file in the app/lib directory we can determine the the app expects the root password to be 'thought'. Therefore add the following linea to the default.rb file in your attributes directory.
 
-Now use the database_mysql resource to create a mysql database with the name 'miniondb'.
+```
+default['mysql']['server_root_password'] = 'thought'
+default['mysql']['server_repl_password'] = 'thought'
+```
+
+Now lets converge again. Now when we log into the machine we shoudl be able to connect to the mysql repl by executing `mysql -uroot -pthouhght`.
 
 ### Create Minion Database
 
-We are going to use the database community cookbook (v 2.3.1) from the chef supermaket (https://supermarket.chef.io/cookbooks/database/versions/1.2.0). Lets go ahead and add this dependency in our metadata.rb file.
+After you have successfully connected to the mysql repl enter `show databases;` in the repl. As you can see there are no databases currently. We must create one with the name miniondb for the app to connect to.
 
-Next include the mysql recipe from the database in your default.rb recipe.
+Now we will use the database_mysql LWRP to create a mysql database with the name 'miniondb'. The database_mysql LWRP requires the the chef-mysql gem to be present. We can accomplish this by including the database::mysql recipe in default.rb.
+
 ```
 include_recipe "database::mysql"
 ```
 
-Now use the database_mysql resource to create a mysql database with the name 'miniondb'.
+*Excercise 3: Create a mysql database with the name miniondb*  
+*Take a look at the database cookbook documentation. Now, use the mysql_database LWRP to create a database with the name miniondb. You will know you are successful when  you can see miniondb when you show databases in the mysql repl.*
 
-*Excercise 2: Extract the ruby version into an attribute*  
-*Rembember what we learned about attributes? Extract the ruby version into an attribute so that it is configurable. Make sure to test your work.*  
+Now all app endpoints should work!  
 
 
 
