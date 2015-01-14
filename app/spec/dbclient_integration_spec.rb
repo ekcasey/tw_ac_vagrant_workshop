@@ -11,8 +11,8 @@ describe DBClient do
     insert_seed
     result = @client.show_all
     expect(result.count).to eq(2)
-    expect(result[0]).to include('carl')
-    expect(result[1]).to include('jill')
+    expect(result[0][:name]).to include('carl')
+    expect(result[1][:name]).to include('jill')
   end
 
   it 'should insert minion' do
@@ -20,17 +20,17 @@ describe DBClient do
     @client.insert('carl')
 
     result = @client.show_all
-    expect(result[0]).to include('carl')
+    expect(result[0][:name]).to include('carl')
     expect(result.count).to eq(1)
   end
 
   it 'should delete minion' do
     insert_seed
-    @client.delete('carl')
+    @client.delete(1)
 
     result = @client.show_all
     expect(result.count).to eq(1)
-    expect(result[0]).to include('jill')
+    expect(result[0][:name]).to include('jill')
 
   end
 

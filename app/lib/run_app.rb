@@ -9,30 +9,31 @@ require 'json'
 set :bind, '0.0.0.0'
 
 before do
-  content_type :json
+  content_type :html
 end
 
 get '/' do
-  'Hello Minions !'
+  erb :index
 end
 
 get '/show/minions' do
-  @client = DBClient.new
+  client = DBClient.new
+  @minions = client.show_all
 
-  all = @client.show_all
-  all.to_json
+  erb :all
 end
 
-post '/minion/:name' do
-  name = params[:name]
-  @client = DBClient.new
-  @client.insert(name)
-  "inserted #{name}"
+post '/insert' do
+  @name = params[:minion]
+  client = DBClient.new
+  client.insert(@name)
+
+  erb :insert
 end
 
-delete '/minion/:name' do
-  name = params[:name]
-  @client = DBClient.new
-  @client.delete(name)
-  "deleted #{name}"
+post '/delete' do
+  id = params[:id]
+  client = DBClient.new
+  client.delete(id)
+  erb :index
 end

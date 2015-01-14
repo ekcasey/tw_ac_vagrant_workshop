@@ -1,0 +1,14 @@
+<h1>Your minions</h1>
+<p>
+
+</p>
+<form action="/delete" method="POST">
+    <% @minions.each do |minion| %>
+        <br>
+
+        <h3><input type="radio" name="id" value="<%= minion[:id] %>"><%= minion[:name] %></option></h3>
+    <% end %>
+    <Input type = "SUBMIT"  value="Remove this minion">
+</form>
+
+<a href="/">Home page</a>

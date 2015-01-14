@@ -13,8 +13,8 @@ class DBClient
     stmt.close
   end
 
-  def delete(name)
-    stmt = @client.prepare("delete from minions where name='#{name}'")
+  def delete(id)
+    stmt = @client.prepare("delete from minions where id='#{id}'")
     stmt.execute
     stmt.close
   end
@@ -30,7 +30,9 @@ class DBClient
   def fetch_results(stmt)
     rows = []
     while row = stmt.fetch do
-      rows << row
+      id = row.first
+      name = row.last
+      rows << {:id => id, :name => name}
     end
     rows
   end
