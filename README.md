@@ -11,12 +11,12 @@ install virtualbox from https://www.virtualbox.org/wiki/Downloads
 install chef-dk from https://downloads.chef.io/chef-dk/mac/#/  
 
 Let's verify that these instalations were successful. The following command should return 1.7.1 or greater
-```
+```console
 $ vagrant --version 
 ````
 
 The following command should open up the virtualbox manager application 
-```
+```console
 $ virtualbox
 ````  
 
