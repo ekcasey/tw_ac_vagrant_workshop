@@ -68,20 +68,20 @@ The first line tells Berkshelf to fetch cookbooks from the chef supermarket. The
 
 To borrow directly from the test-kitchen project 'Test Kitchen is an integration tool for developing and testing infrastructure code and software on isolated target platforms'. What this means is that test-kitchen is the glue that holds our toolchain together. The kitchen command line tool allows you to create virtual machines using vagrant or another driver, upload your cookbook and its dependencies to that machine using berkshelf, apply your cookbook using chef, and then verify the state of the machine using minitest or another testing framework (we won't actaully try testing today). We have already configured test-kitchen for this project, But lets take a moment to look at the key pieces of the .kitchen.yml file...  
   
-```
+```yml
 driver:
   name: vagrant
 ```
 We have specified that we will use vagrant (on top of virtualbox) as a driver. This means that kitchen will create instances using vagrant (other drivers allow you to create instances in the cloud using various cloud drivers).  
 
-```
+```yml
 provisioner:
   name: chef_solo
 ```
 
 We have specified that we will be using chef_solo as a provisioner (this means that we will not be needing a chef server)
 
-```
+```yml
 platforms:
   - name: centos-6.4
     driver:
@@ -273,7 +273,15 @@ include_recipe "database::mysql"
 *Excercise 3: Create a mysql database with the name miniondb*  
 *Take a look at the database cookbook documentation. Now, use the mysql_database LWRP to create a database with the name miniondb. You will know you are successful when  you can see miniondb when you show databases in the mysql repl.*
 
-Now all app endpoints should work!  
+Now all app endpoints should work! 
+
+
+### Test With Serverspec
+
+As we have written this recipe we have been manually testing our work by logging into the VM and verifying its state from the command line. However we can write tests to automate this 
+
+
+### Add Another Platform
 
 
 
