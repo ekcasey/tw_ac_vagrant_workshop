@@ -11,12 +11,12 @@ install virtualbox from https://www.virtualbox.org/wiki/Downloads
 install chef-dk from https://downloads.chef.io/chef-dk/mac/#/  
 
 Let's verify that these instalations were successful. The following command should return 1.7.1 or greater
-```console
+```
 $ vagrant --version 
 ````
 
 The following command should open up the virtualbox manager application 
-```console
+```
 $ virtualbox
 ````  
 
@@ -37,7 +37,7 @@ This repo contains two directories. The 'app' directory includes a ruby app call
 
 The cookbook directory will hold our chef code. We have created the basic directory structure for you. Take a moment to look at the metadata.rb. The following lines describe the name and version of the cookbook.
 
-```
+```ruby
 name    'wdiy'
 version '0.0.1'
 ```
@@ -96,7 +96,7 @@ $ vagrant box add centos65-x86_64-20140116 https://github.com/2creatives/vagrant
 ```
 
 Finally lets take a look at the suites section of the .kitchen.yml 
-```
+```yml
 suites:
   - name: wdiy
 ```
@@ -136,7 +136,7 @@ Your First Cookbook
 
 ### Sharing a Folder
 How will we get the app code onto the virtual machine? For now, lets share a directory from our host machine with the guest VM. Add the following line to your drvier configuration in .kitchen.yml.
-```
+```yml
 synced_folders:
   - ["../app", "/minions"]
 ```  
@@ -167,33 +167,31 @@ Since this is a ruby app we must install ruby on the guest box in order to run t
 
 We are going to use the rbenv cookbook to install ruby. First we need to add the rbenv cookbook as a dependency in our metadata file. Add the following line to metadata.rb
 
-```
+```ruby
 depends 'rbenv', '1.7.1'
 ```
 
 Take a moment to look at the rbenv cookbook documentation https://supermarket.chef.io/cookbooks/rbenv/versions/1.4.1
 
-Now we can use the rbenv_ruby resource to install ruby globally on the vagrant machine. First let's create a defualt.rb file in the recipes directory
-
-`touch recipes/default.rb`
+Now we can use the rbenv_ruby resource to install ruby globally on the vagrant machine. We ahve created an empty defualt.rb file for you in the recipes directory.s
 
 Now lets include the rbenv::default and rbnev::ruby_build recipes. The rbenv::default recipe installs rbenv. And the rbenv::ruby_build recipe install ruby-build (an rbenv plugin that allows rbenv to build rubies). 
 
-```
+```ruby
 include_recipe "rbenv::default"
 include_recipe "rbenv::ruby_build"
 ```
 
 Now that we have installed rbenv and ruby_build Lets use the rbenv_ruby LWRP to build ruby 2.1.1. We want to use the :create action for this LWRP which ahppens to bethe default, therefore we do not need to specify an action. We will set the global attribute to true so that this ruby is the default ruby for the system. Add the following lines to your default.rb
 
-```
+```ruby
 rbenv_ruby '2.1.1' do
   global true
 end
 ```
 
 Now we must add our cookbook to the vagrant runlist. Add the following to the wdiy suite in .kitchen.yml. If a cookbook is added to a runlist rather than a specific recipe the default recipe is run.
-```
+```yml
     run_list:
       - wdiy
 ```
@@ -210,8 +208,8 @@ On the vagrant machine run `ruby --version`. The command should print 2.1.1 to t
 Now, that we have ruby installed lets try running the app.
 
 ```
-cd /minions/lib
-ruby run_app.rb
+$ cd /minions/lib
+$ ruby run_app.rb
 ```
 Oops! You should see the following error 'cannot load such file -- sinatra (LoadError)'. We need to install bundler on the VM so that we can install Minion's dependencies (which includes Sinatra). Your turn!
 
@@ -230,7 +228,7 @@ Next, we would like to see 'Hello Minions!' displayed in a browser. This is a li
 
 To set up the forwarded port, add the following line to your driver configuration in .kitchen.yml.
 
-```
+```yml
   network:
     - ["forwarded_port", {guest: 4567, host: 4567}]
 ```  
@@ -247,13 +245,13 @@ We are going to use the database community cookbook (v 2.3.1) from the chef supe
 
 First we must install the mysql server. The database cookbook depends on the mysql cookbook v5.0. You can see this by clicking on the dependencies tab in the database cookbook documentation. Therefore, we also have acces to the recipes from the mysql cookbook. First we must include the mysql::server recipe. Add the following lines to your default.rb recipe.
 
-```
+```ruby
 include_recipe "mysql::server"
 ```
 
 Now lets run `$ kitchen converge` to apply our recipe to the VM. When the converge is finished login to the VM so we can verify start the installation worked. Login to the guest machine and verify that mysql is running by executing '$ service mysqld status' returns running. now lets exit. The next thing we need would like to do is set the root password so that our app will be able to connect to mysql. We do this by setting the server_root_password attribute. By looking in the dbclient.rb file in the app/lib directory we can determine the the app expects the root password to be 'thought'. Therefore add the following linea to the default.rb file in your attributes directory.
 
-```
+```ruby
 default['mysql']['server_root_password'] = 'thought'
 default['mysql']['server_repl_password'] = 'thought'
 ```
@@ -266,7 +264,7 @@ After you have successfully connected to the mysql repl enter `show databases;` 
 
 Now we will use the database_mysql LWRP to create a mysql database with the name 'miniondb'. The database_mysql LWRP requires the the chef-mysql gem to be present. We can accomplish this by including the database::mysql recipe in default.rb.
 
-```
+```ruby
 include_recipe "database::mysql"
 ```
 
