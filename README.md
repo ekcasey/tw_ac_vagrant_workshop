@@ -273,12 +273,12 @@ Now all app endpoints should work!
 
 As we have written this recipe we have been manually testing our work by logging into the VM and verifying its state from the command line. However we want to treat our infrastructure as similarly to real code as possible. Therefore we will automate our testing. You will notice that within the cookbook directory we have added a test directory for you. We have created a file named default_spec.rb with one example test in it. To the test execute `$ kitchen verify`.
 
-*Excercise 4: Add more Tests  
+*Excercise 4: Add more Tests*   
 *Add serverspec tests for the following...  
 
 1. the bundler gem is installed  
 2. mysqld service is running  
-*
+*  
 
 ### Add Another Platform
 
