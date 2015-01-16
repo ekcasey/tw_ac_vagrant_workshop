@@ -92,7 +92,7 @@ The above lines specifies the type of instance kitchen should create. We will be
 Lets download the base box...  this will take about 3 min...
 
 ```
-$ vagrant box add centos65-x86_64-20140116 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box --insecure
+$ vagrant box add centos7 https://f0fff3908f081cb6461b407be80daf97f07ac418.googledrive.com/host/0BwtuV7VyVTSkUG1PM3pCeDJ4dVE/centos7.box
 ```
 
 Finally lets take a look at the suites section of the .kitchen.yml 
@@ -182,28 +182,23 @@ include_recipe "rbenv::default"
 include_recipe "rbenv::ruby_build"
 ```
 
-Now that we have installed rbenv and ruby_build Lets use the rbenv_ruby LWRP to build ruby 2.1.1. We want to use the :create action for this LWRP which ahppens to bethe default, therefore we do not need to specify an action. We will set the global attribute to true so that this ruby is the default ruby for the system. Add the following lines to your default.rb
+*Excercise 1: Install Bundler*  
+*Now that we have installed rbenv and ruby_build Lets use the rbenv_ruby LWRP to build ruby 2.1.1 as the global ruby version. Add the necessary lines to the recipe. AFter you are done follow the steps below to apply the cookbook to the Vm and verify your changes*
 
-```ruby
-rbenv_ruby '2.1.1' do
-  global true
-end
-```
-
-Now we must add our cookbook to the vagrant runlist. Add the following to the wdiy suite in .kitchen.yml. If a cookbook is added to a runlist rather than a specific recipe the default recipe is run.
+We must add our cookbook to the vagrant runlist. Add the following to the wdiy suite in .kitchen.yml. If a cookbook is added to a runlist rather than a specific recipe the default recipe is run.
 ```yml
     run_list:
       - wdiy
 ```
 
-Now lets apply the cookbook to the instance. 'kitchen converge' will apply your run_list to a created instance.
+Lets apply the cookbook to the instance. 'kitchen converge' will apply your run_list to a created instance.
 ```
 $ kitchen converge
 ```
 
 
 Run `$ kitchen login` to ssh into the box.  
-On the vagrant machine run `ruby --version`. The command should print 2.1.1 to the console.  
+On the vagrant machine run `ruby --version`. The command should print 2.1.1 to the console. If you were uncessful keep updating your recipe and converging until it works!
 
 Now, that we have ruby installed lets try running the app.
 
@@ -213,7 +208,7 @@ $ ruby run_app.rb
 ```
 Oops! You should see the following error 'cannot load such file -- sinatra (LoadError)'. We need to install bundler on the VM so that we can install Minion's dependencies (which includes Sinatra). Your turn!
 
-*Excercise 1: Install Bundler*  
+*Excercise 2: Install Bundler*  
 *Extend default.rb so that it installs the bundler gem on the guest. Hint: look at the rbenv docs. When you are ready, coverge your instance. Now login, and try running `bundle install` in the minions directory. Were you successful? If not, keep trying!*
 
 When you have successfully installed Minion's dependencies try starting the app again. If it starts successfully you should see the following message 'Sinatra/1.4.5 has taken the stage on 4567 for development with backup from WEBrick'. Lets quickly verify this with curl. Open a new terminal tab, run 'kitchen login' and execute the following command. It should return 'Hello Minions!'
@@ -221,10 +216,10 @@ When you have successfully installed Minion's dependencies try starting the app 
 $ curl http://localhost:4567
 ``` 
 
-*Excercise 2: Extract the ruby version into an attribute*  
+*Excercise 3: Extract the ruby version into an attribute*  
 *Rembember what we learned about attributes? Extract the ruby version into an attribute so that it is configurable. Make sure to test your work.*  
 
-Next, we would like to see 'Hello Minions!' displayed in a browser. This is a little trickier b/c our guest machine has no browser. We want to use the browser on our host machine. To do this we would like to forward port 4567 from the guest to the host machine. Therefore when we access localhost:4567 in our host browser it will display content from the guest at port 4567. 
+Next, we would like to see 'Hello Minions!' displayed in a browser. This is a little trickier because our guest machine has no browser. We want to use the browser on our host machine. To do this we would like to forward port 4567 from the guest to the host machine. Therefore when we access localhost:4567 in our host browser it will display content from the guest at port 4567. 
 
 To set up the forwarded port, add the following line to your driver configuration in .kitchen.yml.
 
@@ -249,7 +244,7 @@ First we must install the mysql server. The database cookbook depends on the mys
 include_recipe "mysql::server"
 ```
 
-Now lets run `$ kitchen converge` to apply our recipe to the VM. When the converge is finished login to the VM so we can verify start the installation worked. Login to the guest machine and verify that mysql is running by executing '$ service mysqld status' returns running. now lets exit. The next thing we need would like to do is set the root password so that our app will be able to connect to mysql. We do this by setting the server_root_password attribute. By looking in the dbclient.rb file in the app/lib directory we can determine the the app expects the root password to be 'thought'. Therefore add the following linea to the default.rb file in your attributes directory.
+Now lets run `$ kitchen converge` to apply our recipe to the VM. When the converge is finished login to the VM so we can verify start the installation worked. Login to the guest machine and verify that mysql is running by executing '$ service mysqld status' returns running. now lets exit. The next thing we need would like to do is set the root password so that our app will be able to connect to mysql. We do this by setting the server_root_password attribute. By looking in the dbclient.rb file in the app/lib directory we can determine the the app expects the root password to be 'thought'. Therefore add the following line to the default.rb file in your attributes directory. Lets also set the repl password so that we can connect to the mysql command prompt using the same password.
 
 ```ruby
 default['mysql']['server_root_password'] = 'thought'
@@ -268,7 +263,7 @@ Now we will use the database_mysql LWRP to create a mysql database with the name
 include_recipe "database::mysql"
 ```
 
-*Excercise 3: Create a mysql database with the name miniondb*  
+*Excercise 4: Create a mysql database with the name miniondb*  
 *Take a look at the database cookbook documentation. Now, use the mysql_database LWRP to create a database with the name miniondb. You will know you are successful when  you can see miniondb when you show databases in the mysql repl.*
 
 Now all app endpoints should work! 
@@ -276,10 +271,22 @@ Now all app endpoints should work!
 
 ### Test With Serverspec
 
-As we have written this recipe we have been manually testing our work by logging into the VM and verifying its state from the command line. However we want to treat our infrastructure as similarly to real code as possible. Therefore we will automated our testing. You will notice that within
+As we have written this recipe we have been manually testing our work by logging into the VM and verifying its state from the command line. However we want to treat our infrastructure as similarly to real code as possible. Therefore we will automate our testing. You will notice that within the cookbook directory we have added a test directory for you. We have created a file named default_spec.rb with one example test in it. To the test execute `$ kitchen verify`.
 
+*Excercise 4: Add more Tests  
+*Add serverspec tests for the following...  
+
+1. the bundler gem is installed  
+2. mysqld service is running  
+*
 
 ### Add Another Platform
+
+A good chef cookbook should be platform independent. That is why each resource has multiple providers. The correct provider is selected for the platform. Serverspec tests can also be written so that they are platform independent. Test-kitchen allows you to test your cookbook against multiple platforms at once. 
+
+*Excercise 4: Add an ubunutu instance* 
+*In the .kitchen.yml file add another platform. Use ubuntu. Then run `$ kitchen test` to converge and test both instances. (Hint, second instance will need a different forwarded host port)
+*
 
 
 

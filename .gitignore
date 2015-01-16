@@ -6,3 +6,4 @@ tmp
 modules/*
 .bundle
 .tmp
+cookbook/.kitchen

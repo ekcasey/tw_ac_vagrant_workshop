@@ -1,14 +1,20 @@
 ---
 driver:
   name: vagrant
+  synced_folders:
+    - ["../app", "/minions"]
+  network:
+    - ["forwarded_port", {guest: 4567, host: 4567}]
 
 provisioner:
   name: chef_solo
 
 platforms:
-  - name: centos-6.4
+  - name: centos-7
     driver:
-      box: centos65-x86_64-20140116
+      box: centos7
 
 suites:
   - name: wdiy
+    run_list:
+      - wdiy
