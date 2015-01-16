@@ -8,7 +8,7 @@ provisioner:
 platforms:
   - name: centos-65
     driver:
-      box: box: centos65-x86_64-20140116
+      box: centos65-x86_64-20140116
 
 
 suites:
