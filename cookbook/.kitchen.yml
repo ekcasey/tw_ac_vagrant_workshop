@@ -6,7 +6,7 @@ provisioner:
   name: chef_solo
 
 platforms:
-  - name: centos-65
+  - name: centos-6.5
     driver:
       box: centos65-x86_64-20140116
 
