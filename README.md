@@ -286,8 +286,8 @@ As we have written this recipe we have been manually testing our work by logging
 
 A good chef cookbook should be platform independent. That is why each resource has multiple providers. The correct provider is selected for the platform. Serverspec tests can also be written so that they are platform independent. Test-kitchen allows you to test your cookbook against multiple platforms at once. 
 
-*Excercise 4: Add an ubunutu instance*  
-*In the .kitchen.yml file add another platform. Use ubuntu. Then run `$ kitchen test -c` to converge and test both instances concurrently. (Hint, second instance will need a different forwarded host port)*
+*Excercise 5: Add a Ubuntu Platform*   
+* Add a second platform to your .kitchen.yml file. Use the box at this url https://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-i386-vagrant-disk1.box. Run '$ kitchen test -c' to converge and test centos and ubuntu concurrently.*  
 
 
 
