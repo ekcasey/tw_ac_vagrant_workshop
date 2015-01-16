@@ -257,7 +257,7 @@ Now lets converge again. Now when we log into the machine we shoudl be able to c
 
 After you have successfully connected to the mysql repl enter `show databases;` in the repl. As you can see there are no databases currently. We must create one with the name miniondb for the app to connect to.
 
-Now we will use the database_mysql LWRP to create a mysql database with the name 'miniondb'. The database_mysql LWRP requires the the chef-mysql gem to be present. We can accomplish this by including the database::mysql recipe in default.rb.
+Now we will use the database mysql LWRP to create a mysql database with the name 'miniondb'. The database mysql LWRP requires the the chef-mysql gem to be present. We can accomplish this by including the database::mysql recipe in default.rb.
 
 ```ruby
 include_recipe "database::mysql"
