@@ -135,7 +135,7 @@ Your First Cookbook
 **Main Objective**: Write a Chef cookbook that will provision an application server for the Minions app.
 
 ### Sharing a Folder
-How will we get the app code onto the virtual machine? For now, lets share a directory from our host machine with the guest VM. Add the following line to your drvier configuration in .kitchen.yml.
+How will we get the app code onto the virtual machine? For now, lets share a directory from our host machine with the guest VM. Add the following line to your driver configuration in .kitchen.yml.
 ```yml
 synced_folders:
   - ["../app", "/minions"]
