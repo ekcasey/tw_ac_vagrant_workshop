@@ -277,7 +277,7 @@ As we have written this recipe we have been manually testing our work by logging
 *Add serverspec tests for the following...*  
 
 *1. the bundler gem is installed*  
-*2. mysqld service is running  *
+*2. the mysqld service is running*  
 
 
 ### Add Another Platform
