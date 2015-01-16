@@ -10,7 +10,7 @@ install vagrant from https://www.vagrantup.com/downloads
 install virtualbox from https://www.virtualbox.org/wiki/Downloads  
 install chef-dk from https://downloads.chef.io/chef-dk/mac/#/  
 
-Let's verify that these instalations were successful. The following command should return 1.7.1 or greater
+Let's verify that these installations were successful. The following command should return 1.7.1 or greater
 ```
 $ vagrant --version 
 ````
@@ -50,7 +50,7 @@ Setting up the Local Environment
 
 ### Setting Up Berkshelf  
 
-Berkshelf is a dependency manager for Chef. The cookbook we write will depend on cookbooks written by the chef community. You wil notice that an empty Berksfile has been created for you. Berkshelf uses the Berksfile to determine what dependencies to fetch and where to fetch these dependencies from. Add the following lines to your Berksfile.  
+Berkshelf is a dependency manager for Chef. The cookbook we write will depend on cookbooks written by the chef community. You will notice that an empty Berksfile has been created for you. Berkshelf uses the Berksfile to determine what dependencies to fetch and where to fetch these dependencies from. Add the following lines to your Berksfile.  
 
 Berksfile
 
@@ -66,7 +66,7 @@ The first line tells Berkshelf to fetch cookbooks from the chef supermarket. The
 
 ###  Setting Up Test Kitchen
 
-To borrow directly from the test-kitchen project 'Test Kitchen is an integration tool for developing and testing infrastructure code and software on isolated target platforms'. What this means is that test-kitchen is the glue that holds our toolchain together. The kitchen command line tool allows you to create virtual machines using vagrant or another driver, upload your cookbook and its dependencies to that machine using berkshelf, apply your cookbook using chef, and then verify the state of the machine using minitest or another testing framework (we won't actaully try testing today). We have already configured test-kitchen for this project, But lets take a moment to look at the key pieces of the .kitchen.yml file...  
+To borrow directly from the test-kitchen project 'Test Kitchen is an integration tool for developing and testing infrastructure code and software on isolated target platforms'. What this means is that test-kitchen is the glue that holds our toolchain together. The kitchen command line tool allows you to create virtual machines using vagrant or another driver, upload your cookbook and its dependencies to that machine using berkshelf, apply your cookbook using chef, and then verify the state of the machine using minitest or another testing framework (we won't actually try testing today). We have already configured test-kitchen for this project, But lets take a moment to look at the key pieces of the .kitchen.yml file...  
   
 ```yml
 driver:
@@ -109,14 +109,14 @@ The next important command is `kitchen create`. This will create that instance b
  
 `$ kitchen create`  
 
-This command should execute succesfully and create your virtual machine. To verify that the virtual machine was successfully create open virtualbox  manager (you can do this by running ``virtualbox` from the command line) and look for an instance with the name  'wdiy-centos-64'.
+This command should execute successfully and create your virtual machine. To verify that the virtual machine was successfully create open virtualbox  manager (you can do this by running ``virtualbox` from the command line) and look for an instance with the name  'wdiy-centos-64'.
 
 Next, we want to ssh into our newly created virtual machine. To do this run the following command
 ```
 $ kitchen login
 ```  
 
-Now you are logged into the virtual machine! Your command prompt should have changed to indicate this. From now on we will call this machine the VM or th guest. Take a moment to look around. Maybe try the following commands...  
+Now you are logged into the virtual machine! Your command prompt should have changed to indicate this. From now on we will call this machine the VM or the guest. Take a moment to look around. Maybe try the following commands...  
 ```
 $ whoami  
 $ hostname    
@@ -173,7 +173,7 @@ depends 'rbenv', '1.7.1'
 
 Take a moment to look at the rbenv cookbook documentation https://supermarket.chef.io/cookbooks/rbenv/versions/1.4.1
 
-Now we can use the rbenv_ruby resource to install ruby globally on the vagrant machine. We ahve created an empty defualt.rb file for you in the recipes directory.s
+Now we can use the rbenv_ruby resource to install ruby globally on the vagrant machine. We have created an empty default.rb file for you in the recipes directory.s
 
 Now lets include the rbenv::default and rbnev::ruby_build recipes. The rbenv::default recipe installs rbenv. And the rbenv::ruby_build recipe install ruby-build (an rbenv plugin that allows rbenv to build rubies). 
 
@@ -182,8 +182,8 @@ include_recipe "rbenv::default"
 include_recipe "rbenv::ruby_build"
 ```
 
-*Excercise 1: Install Bundler*  
-*Now that we have installed rbenv and ruby_build Lets use the rbenv_ruby LWRP to build ruby 2.1.1 as the global ruby version. Add the necessary lines to the recipe. AFter you are done follow the steps below to apply the cookbook to the Vm and verify your changes*
+*Exercise 1: Install Ruby 2.1.1*  
+*Now that we have installed rbenv and ruby_build Lets use the rbenv_ruby LWRP to build ruby 2.1.1 as the global ruby version. Add the necessary lines to the recipe. After you are done follow the steps below to apply the cookbook to the Vm and verify your changes*
 
 We must add our cookbook to the vagrant runlist. Add the following to the wdiy suite in .kitchen.yml. If a cookbook is added to a runlist rather than a specific recipe the default recipe is run.
 ```yml
@@ -198,7 +198,7 @@ $ kitchen converge
 
 
 Run `$ kitchen login` to ssh into the box.  
-On the vagrant machine run `ruby --version`. The command should print 2.1.1 to the console. If you were uncessful keep updating your recipe and converging until it works!
+On the vagrant machine run `ruby --version`. The command should print 2.1.1 to the console. If you were unsuccessful keep updating your recipe and converging until it works!
 
 Now, that we have ruby installed lets try running the app.
 
@@ -208,16 +208,16 @@ $ ruby run_app.rb
 ```
 Oops! You should see the following error 'cannot load such file -- sinatra (LoadError)'. We need to install bundler on the VM so that we can install Minion's dependencies (which includes Sinatra). Your turn!
 
-*Excercise 2: Install Bundler*  
-*Extend default.rb so that it installs the bundler gem on the guest. Hint: look at the rbenv docs. When you are ready, coverge your instance. Now login, and try running `bundle install` in the minions directory. Were you successful? If not, keep trying!*
+*Exercise 2: Install Bundler*  
+*Extend default.rb so that it installs the bundler gem on the guest. Hint: look at the rbenv docs. When you are ready, converge your instance. Now login, and try running `bundle install` in the minions directory. Were you successful? If not, keep trying!*
 
 When you have successfully installed Minion's dependencies try starting the app again. If it starts successfully you should see the following message 'Sinatra/1.4.5 has taken the stage on 4567 for development with backup from WEBrick'. Lets quickly verify this with curl. Open a new terminal tab, run 'kitchen login' and execute the following command. It should return 'Hello Minions!'
 ```
 $ curl http://localhost:4567
 ``` 
 
-*Excercise 3: Extract the ruby version into an attribute*  
-*Rembember what we learned about attributes? Extract the ruby version into an attribute so that it is configurable. Make sure to test your work.*  
+*Exercise 3: Extract the ruby version into an attribute*  
+*Remember what we learned about attributes? Extract the ruby version into an attribute so that it is configurable. Make sure to test your work.*  
 
 Next, we would like to see 'Hello Minions!' displayed in a browser. This is a little trickier because our guest machine has no browser. We want to use the browser on our host machine. To do this we would like to forward port 4567 from the guest to the host machine. Therefore when we access localhost:4567 in our host browser it will display content from the guest at port 4567. 
 
@@ -228,7 +228,7 @@ To set up the forwarded port, add the following line to your driver configuratio
     - ["forwarded_port", {guest: 4567, host: 4567}]
 ```  
 
-Now, we must destroy and recreate the VM in order to apply this change. Run 'ktichen destroy' from the host machine. Now, this time instead of running 'kitchen create' lets use the 'kitchen setup' command which will create the VM apply the runlist with Chef.
+Now, we must destroy and recreate the VM in order to apply this change. Run 'kitchen destroy' from the host machine. Now, this time instead of running 'kitchen create' lets use the 'kitchen setup' command which will create the VM apply the runlist with Chef.
 
 Now lets login to the guest machine again, bundle install, and start the minions application. Now, from the browser on your host machine, navigate to localhost:4567. You should see 'Hello Minions!' displayed in the browser.
 
@@ -236,9 +236,9 @@ Next try to navigate to  localhost:4567/show/minions. Oh no! A database error. T
 
 ### Install Mysql
 
-We are going to use the database community cookbook (v 3.0.0) from the chef supermaket (https://supermarket.chef.io/cookbooks/database). Lets go ahead and add this dependency in our metadata.rb file.
+We are going to use the database community cookbook (v 3.0.0) from the chef supermarket (https://supermarket.chef.io/cookbooks/database). Lets go ahead and add this dependency in our metadata.rb file.
 
-First we must install the mysql server. The database cookbook depends on the mysql cookbook v5.0. You can see this by clicking on the dependencies tab in the database cookbook documentation. Therefore, we also have acces to the recipes from the mysql cookbook. First we must include the mysql::server recipe. Add the following lines to your default.rb recipe.
+First we must install the mysql server. The database cookbook depends on the mysql cookbook v5.0. You can see this by clicking on the dependencies tab in the database cookbook documentation. Therefore, we also have access to the recipes from the mysql cookbook. First we must include the mysql::server recipe. Add the following lines to your default.rb recipe.
 
 ```ruby
 include_recipe "mysql::server"
@@ -263,7 +263,7 @@ Now we will use the database_mysql LWRP to create a mysql database with the name
 include_recipe "database::mysql"
 ```
 
-*Excercise 4: Create a mysql database with the name miniondb*  
+*Exercise 4: Create a mysql database with the name miniondb*  
 *Take a look at the database cookbook documentation. Now, use the mysql_database LWRP to create a database with the name miniondb. You will know you are successful when  you can see miniondb when you show databases in the mysql repl.*
 
 Now all app endpoints should work! 
@@ -273,20 +273,20 @@ Now all app endpoints should work!
 
 As we have written this recipe we have been manually testing our work by logging into the VM and verifying its state from the command line. However we want to treat our infrastructure as similarly to real code as possible. Therefore we will automate our testing. You will notice that within the cookbook directory we have added a test directory for you. We have created a file named default_spec.rb with one example test in it. To the test execute `$ kitchen verify`.
 
-*Excercise 4: Add more Tests*   
+*Exercise 4: Add more Tests*   
 *Add serverspec tests for the following...*  
 
 *1. the bundler gem is installed*  
 *2. the mysqld service is running*  
 
-*make sure your tests fail on an unconverged instance and succeed after the cookbook is applied*  
+*make sure your tests fail on an un-converged instance and succeed after the cookbook is applied*  
 
 
 ### Add Another Platform
 
 A good chef cookbook should be platform independent. That is why each resource has multiple providers. The correct provider is selected for the platform. Serverspec tests can also be written so that they are platform independent. Test-kitchen allows you to test your cookbook against multiple platforms at once. 
 
-*Excercise 5: Add a Ubuntu Platform*   
+*Exercise 5: Add a Ubuntu Platform*   
 * Add a second platform to your .kitchen.yml file. Use the box at this url https://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-i386-vagrant-disk1.box. Run '$ kitchen test -c' to converge and test centos and ubuntu concurrently.*  
 
 
