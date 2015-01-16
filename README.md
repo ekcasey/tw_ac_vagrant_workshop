@@ -83,7 +83,7 @@ We have specified that we will be using chef_solo as a provisioner (this means t
 
 ```yml
 platforms:
-  - name: centos-6.4
+  - name: centos-6.5
     driver:
       box: centos65-x86_64-20140116
 ```
@@ -92,7 +92,7 @@ The above lines specifies the type of instance kitchen should create. We will be
 Lets download the base box...  this will take about 3 min...
 
 ```
-$ vagrant box add centos7 https://f0fff3908f081cb6461b407be80daf97f07ac418.googledrive.com/host/0BwtuV7VyVTSkUG1PM3pCeDJ4dVE/centos7.box
+$ vagrant box add centos65-x86_64-20140116 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box --insecure
 ```
 
 Finally lets take a look at the suites section of the .kitchen.yml 
@@ -236,7 +236,7 @@ Next try to navigate to  localhost:4567/show/minions. Oh no! A database error. T
 
 ### Install Mysql
 
-We are going to use the database community cookbook (v 2.3.1) from the chef supermaket (https://supermarket.chef.io/cookbooks/database/versions/2.3.1). Lets go ahead and add this dependency in our metadata.rb file.
+We are going to use the database community cookbook (v 3.0.0) from the chef supermaket (https://supermarket.chef.io/cookbooks/database). Lets go ahead and add this dependency in our metadata.rb file.
 
 First we must install the mysql server. The database cookbook depends on the mysql cookbook v5.0. You can see this by clicking on the dependencies tab in the database cookbook documentation. Therefore, we also have acces to the recipes from the mysql cookbook. First we must include the mysql::server recipe. Add the following lines to your default.rb recipe.
 
@@ -287,7 +287,7 @@ As we have written this recipe we have been manually testing our work by logging
 A good chef cookbook should be platform independent. That is why each resource has multiple providers. The correct provider is selected for the platform. Serverspec tests can also be written so that they are platform independent. Test-kitchen allows you to test your cookbook against multiple platforms at once. 
 
 *Excercise 4: Add an ubunutu instance*  
-*In the .kitchen.yml file add another platform. Use ubuntu. Then run `$ kitchen test` to converge and test both instances. (Hint, second instance will need a different forwarded host port)*
+*In the .kitchen.yml file add another platform. Use ubuntu. Then run `$ kitchen test -c` to converge and test both instances concurrently. (Hint, second instance will need a different forwarded host port)*
 
 
 
