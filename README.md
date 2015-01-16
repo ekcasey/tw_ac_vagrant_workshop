@@ -279,6 +279,8 @@ As we have written this recipe we have been manually testing our work by logging
 *1. the bundler gem is installed*  
 *2. the mysqld service is running*  
 
+*make sure your tests fail on an unconverged instance and succeed after the cookbook is applied*  
+
 
 ### Add Another Platform
 
