@@ -274,19 +274,18 @@ Now all app endpoints should work!
 As we have written this recipe we have been manually testing our work by logging into the VM and verifying its state from the command line. However we want to treat our infrastructure as similarly to real code as possible. Therefore we will automate our testing. You will notice that within the cookbook directory we have added a test directory for you. We have created a file named default_spec.rb with one example test in it. To the test execute `$ kitchen verify`.
 
 *Excercise 4: Add more Tests*   
-*Add serverspec tests for the following...  
+*Add serverspec tests for the following...*  
 
-1. the bundler gem is installed  
-2. mysqld service is running  
-*  
+*1. the bundler gem is installed*  
+*2. mysqld service is running  *
+
 
 ### Add Another Platform
 
 A good chef cookbook should be platform independent. That is why each resource has multiple providers. The correct provider is selected for the platform. Serverspec tests can also be written so that they are platform independent. Test-kitchen allows you to test your cookbook against multiple platforms at once. 
 
-*Excercise 4: Add an ubunutu instance* 
-*In the .kitchen.yml file add another platform. Use ubuntu. Then run `$ kitchen test` to converge and test both instances. (Hint, second instance will need a different forwarded host port)
-*
+*Excercise 4: Add an ubunutu instance*  
+*In the .kitchen.yml file add another platform. Use ubuntu. Then run `$ kitchen test` to converge and test both instances. (Hint, second instance will need a different forwarded host port)*
 
 
 
