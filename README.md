@@ -31,7 +31,7 @@ Cloning the repo
 ----------------
 
 First clone the workshop repo    
-`$ git clone git@github.com:ekcasey/tw_ac_vagrant_workshop.git`    
+`$ git clone https://github.com/ekcasey/tw_ac_vagrant_workshop.git`    
 
 This repo contains two directories. The 'app' directory includes a ruby app called Minions. Our goal is to use Chef to provision a virtual machine machine so that it can run the Minions app. Take a minute to inspect the app directory.
 
@@ -276,7 +276,7 @@ Now all app endpoints should work!
 
 ### Test With Serverspec
 
-As we have written this recipe we have been manually testing our work by logging into the VM and verifying its state from the command line. However we can write tests to automate this 
+As we have written this recipe we have been manually testing our work by logging into the VM and verifying its state from the command line. However we want to treat our infrastructure as similarly to real code as possible. Therefore we will automated our testing. You will notice that within
 
 
 ### Add Another Platform
