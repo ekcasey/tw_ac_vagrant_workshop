@@ -236,7 +236,7 @@ Next try to navigate to  localhost:4567/show/minions. Oh no! A database error. T
 
 ### Install Mysql
 
-We are going to use the database community cookbook (v 3.0.0) from the chef supermarket (https://supermarket.chef.io/cookbooks/database). Lets go ahead and add this dependency in our metadata.rb file.
+We are going to use the database community cookbook (v 2.3.1) from the chef supermarket (https://supermarket.chef.io/cookbooks/database). Lets go ahead and add this dependency in our metadata.rb file.
 
 First we must install the mysql server. The database cookbook depends on the mysql cookbook v5.0. You can see this by clicking on the dependencies tab in the database cookbook documentation. Therefore, we also have access to the recipes from the mysql cookbook. First we must include the mysql::server recipe. Add the following lines to your default.rb recipe.
 
