@@ -6,12 +6,10 @@ provisioner:
   name: chef_solo
 
 platforms:
-  - name: centos-6.5
+  - name: centos-6.6
     driver:
-      box: centos65-x86_64-20140116
+      box: chef/centos-6.6
 
 
 suites:
   - name: wdiy
-    run_list:
-      - wdiy

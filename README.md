@@ -83,16 +83,16 @@ We have specified that we will be using chef_solo as a provisioner (this means t
 
 ```yml
 platforms:
-  - name: centos-6.5
+  - name: centos-6.6
     driver:
-      box: centos65-x86_64-20140116
+      box: chef/centos-6.6
 ```
 The above lines specifies the type of instance kitchen should create. We will be testing our cookbook on  centos-6.4 image. The last 2 lines tell test-kitchen which base image to use when creating instances. We need to download this image so that it is available to test-kitchen   
 
 Lets download the base box...  this will take about 3 min...
 
 ```
-$ vagrant box add centos65-x86_64-20140116 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box --insecure
+$ vagrant box add https://vagrantcloud.com/chef/boxes/centos-6.6
 ```
 
 Finally lets take a look at the suites section of the .kitchen.yml 
