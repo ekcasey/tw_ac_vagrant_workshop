@@ -217,7 +217,7 @@ $ curl http://localhost:4567
 ``` 
 
 *Exercise 3: Extract the ruby version into an attribute*  
-*Remember what we learned about attributes? Extract the ruby version into an attribute so that it is configurable. Make sure to test your work.*  
+*Extract the ruby version into an attribute so that it is configurable. Make sure to test your work.*  
 
 Next, we would like to see 'Hello Minions!' displayed in a browser. This is a little trickier because our guest machine has no browser. We want to use the browser on our host machine. To do this we would like to forward port 4567 from the guest to the host machine. Therefore when we access localhost:4567 in our host browser it will display content from the guest at port 4567. 
 
