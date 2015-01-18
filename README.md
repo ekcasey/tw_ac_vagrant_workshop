@@ -7,7 +7,7 @@ Prerequisites
 
 install Sublime from http://www.sublimetext.com/3 (optional)  
 install vagrant from https://www.vagrantup.com/downloads  
-install virtualbox from https://www.virtualbox.org/wiki/Downloads  
+install virtualbox 4.3.18 from https://www.virtualbox.org/wiki/Download_Old_Builds_4_3  (other versions are OK)
 install chef-dk from https://downloads.chef.io/chef-dk/mac/#/  
 
 Let's verify that these installations were successful. The following command should return 1.7.1 or greater
